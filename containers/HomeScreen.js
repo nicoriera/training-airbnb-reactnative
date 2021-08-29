@@ -12,6 +12,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 
+import RoomCard from "../components/RoomCard";
+
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
@@ -19,12 +21,15 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(
-        "https://express-airbnb-api.herokuapp.com/rooms"
-      );
-      setData(response.data);
-
-      setIsLoading(false);
+      try {
+        const response = await axios.get(
+          "https://express-airbnb-api.herokuapp.com/rooms"
+        );
+        setData(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error.message);
+      }
     };
     fetchData();
   }, []);
@@ -45,25 +50,9 @@ export default function HomeScreen() {
       <View style={styles.container_rooms}>
         <FlatList
           data={data}
-          keyExtractor={(item) => String(item.id)}
+          keyExtractor={(item) => String(item._id)}
           renderItem={({ item }) => {
-            return (
-              <View>
-                <View style={styles.container_photo}>
-                  <Image
-                    style={styles.photo}
-                    source={{
-                      uri: `${item.photos[0].url}`,
-                    }}
-                  />
-                  <Text style={styles.container_photo_price}>{item.price}</Text>
-                </View>
-
-                <Text>{item.title}</Text>
-                <Text>{item.ratingValue}</Text>
-                <Text>{item.reviews}</Text>
-              </View>
-            );
+            return <RoomCard item={item} />;
           }}
         />
       </View>
@@ -84,10 +73,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 5,
   },
-  container_photo: {},
-  container_photo_price: { position: "absolute" },
+  container_photo: {
+    marginBottom: 20,
+  },
+  container_photo_price: {
+    position: "absolute",
+
+    backgroundColor: "black",
+    color: "white",
+    fontWeight: "bold",
+    bottom: 10,
+    padding: 10,
+  },
   photo: {
     height: 200,
     width: 400,
+  },
+  container_rating: {
+    paddingBottom: 20,
+    marginBottom: 20,
+    borderBottomColor: "lightgrey",
+    borderBottomWidth: 2,
   },
 });

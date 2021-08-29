@@ -1,10 +1,10 @@
 import React from "react";
 import { Button, Text, View } from "react-native";
 
-export default function SettingsScreen({ setToken }) {
+export default function AroundMe() {
   return (
     <View>
-      <Text>Hello Settings</Text>
+      <Text>Hello Around Me</Text>
 
       <Button
         title="Log Out"
