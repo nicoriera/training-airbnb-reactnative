@@ -9,19 +9,10 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import Profil from "../components/Profil";
 const RoomCard = ({ item }) => {
   const navigation = useNavigation();
-  const displayStars = (ratingValue) => {
-    const tab = [];
-    for (let i = 1; i <= 5; i++) {
-      if (i <= ratingValue) {
-        tab.push(<Ionicons key={i} name="ios-star" size={20} color="gold" />);
-      } else {
-        tab.push(<Ionicons key={i} name="ios-star" size={20} color="grey" />);
-      }
-    }
-    return tab;
-  };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -37,25 +28,7 @@ const RoomCard = ({ item }) => {
           />
           <Text style={styles.container_photo_price}>{item.price} €</Text>
         </View>
-        <View style={styles.container_profil}>
-          <View style={styles.container_title}>
-            <Text numberOfLines={1} style={styles.title}>
-              {item.title}
-            </Text>
-            <View style={styles.container_rating}>
-              <View style={styles.stars}>{displayStars(item.ratingValue)}</View>
-              <Text style={styles.reviews}>{item.reviews} reviews</Text>
-            </View>
-          </View>
-          <View style={styles.container_photo_profil}>
-            <Image
-              style={styles.photo_profil}
-              source={{
-                uri: item.user.account.photo.url,
-              }}
-            />
-          </View>
-        </View>
+        <Profil item={item} />
       </View>
     </TouchableOpacity>
   );
