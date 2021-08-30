@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
+import MapView from "react-native-maps";
+
 import {
   ActivityIndicator,
-  Button,
+  Dimensions,
   Text,
   View,
   StyleSheet,
-  Image,
   ImageBackground,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 
@@ -37,31 +39,44 @@ export default function RoomScreen({ route }) {
   return isLoading ? (
     <ActivityIndicator />
   ) : (
-    <View>
-      <ImageBackground
-        style={styles.photo}
-        source={{
-          uri: data.photos[0].url,
-        }}
-      >
-        <View style={styles.container_photo}>
-          <Text style={styles.container_photo_price}>{data.price} €</Text>
-        </View>
-      </ImageBackground>
-      <View style={styles.container_info}>
-        <Profil item={data} />
-
-        <TouchableOpacity
-          onPress={() => {
-            setDescriptionVisible(null);
+    <ScrollView>
+      <View>
+        <ImageBackground
+          style={styles.photo}
+          source={{
+            uri: data.photos[0].url,
           }}
         >
-          <Text style={styles.description} numberOfLines={descriptionVisible}>
-            {data.description}
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.container_photo}>
+            <Text style={styles.container_photo_price}>{data.price} €</Text>
+          </View>
+        </ImageBackground>
+        <View style={styles.container_info}>
+          <Profil item={data} />
+
+          <TouchableOpacity
+            onPress={() => {
+              setDescriptionVisible(null);
+            }}
+          >
+            <Text style={styles.description} numberOfLines={descriptionVisible}>
+              {data.description}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.container_map}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: 48.856614,
+              longitude: 2.3522219,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1,
+            }}
+          />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -89,5 +104,13 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13,
+  },
+  container_map: {
+    flex: 1,
+    marginTop: 25,
+  },
+  map: {
+    width: "100%",
+    height: 300,
   },
 });
