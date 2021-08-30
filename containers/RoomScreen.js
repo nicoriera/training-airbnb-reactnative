@@ -3,7 +3,6 @@ import MapView from "react-native-maps";
 
 import {
   ActivityIndicator,
-  Dimensions,
   Text,
   View,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
 import axios from "axios";
 
 import Profil from "../components/Profil";
+import Map from "../components/Map";
 
 export default function RoomScreen({ route }) {
   const id = route.params.id;
@@ -66,24 +66,7 @@ export default function RoomScreen({ route }) {
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.container_map}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 48.856614,
-              longitude: 2.3522219,
-              latitudeDelta: 0.1,
-              longitudeDelta: 0.1,
-            }}
-          >
-            <MapView.Marker
-              coordinate={{
-                latitude: data.location[1],
-                longitude: data.location[0],
-              }}
-            ></MapView.Marker>
-          </MapView>
-        </View>
+        <Map data={data} />
       </View>
     </ScrollView>
   );
@@ -113,13 +96,5 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13,
-  },
-  container_map: {
-    flex: 1,
-    marginTop: 25,
-  },
-  map: {
-    width: "100%",
-    height: 300,
   },
 });
