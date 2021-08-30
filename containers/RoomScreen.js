@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import MapView from "react-native-maps";
 
 import {
   ActivityIndicator,
@@ -17,7 +16,6 @@ import Map from "../components/Map";
 
 export default function RoomScreen({ route }) {
   const id = route.params.id;
-  console.log(id);
   const [data, setData] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [descriptionVisible, setDescriptionVisible] = useState(3);

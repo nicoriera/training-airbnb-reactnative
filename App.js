@@ -124,7 +124,7 @@ export default function App() {
                         name="Around"
                         options={{ title: "Around Me" }}
                       >
-                        {() => <AroundMe />}
+                        {(props) => <AroundMe {...props} />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
