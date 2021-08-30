@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import { Image, ActivityIndicator } from "react-native";
+import { Image, ActivityIndicator, StyleSheet } from "react-native";
 
 import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
@@ -95,10 +95,12 @@ export default function App() {
                         options={{
                           title: (
                             <Image
-                              style={{ width: "100%", height: 10 }}
+                              style={styles.aribnb_icon}
                               source={require("./assets/logo_airbnb.png")}
                             />
                           ),
+
+                          headerTintColor: "grey",
                         }}
                       >
                         {(props) => <RoomScreen {...props} />}
@@ -153,3 +155,9 @@ export default function App() {
     </NavigationContainer>
   );
 }
+const styles = StyleSheet.create({
+  aribnb_icon: {
+    height: 40,
+    width: 30,
+  },
+});

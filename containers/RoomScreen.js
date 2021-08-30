@@ -29,6 +29,8 @@ export default function RoomScreen({ route }) {
           `https://express-airbnb-api.herokuapp.com/rooms/${id}`
         );
         setData(response.data);
+        console.log(response.data.location[0]);
+
         setIsLoading(false);
       } catch (error) {
         console.log(error.message);
@@ -73,7 +75,14 @@ export default function RoomScreen({ route }) {
               latitudeDelta: 0.1,
               longitudeDelta: 0.1,
             }}
-          />
+          >
+            <MapView.Marker
+              coordinate={{
+                latitude: data.location[1],
+                longitude: data.location[0],
+              }}
+            ></MapView.Marker>
+          </MapView>
         </View>
       </View>
     </ScrollView>
