@@ -1,10 +1,93 @@
-import React from "react";
-import { Button, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Button,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  ImageBackground,
+  TouchableOpacity,
+} from "react-native";
+import axios from "axios";
 
-export default function RoomScreen({ setToken }) {
-  return (
+import Profil from "../components/Profil";
+
+export default function RoomScreen({ route }) {
+  const id = route.params.id;
+  console.log(id);
+  const [data, setData] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [descriptionVisible, setDescriptionVisible] = useState(3);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://express-airbnb-api.herokuapp.com/rooms/${id}`
+        );
+        setData(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchData();
+  }, []);
+  return isLoading ? (
+    <ActivityIndicator />
+  ) : (
     <View>
-      <Text>Hello Settings</Text>
+      <ImageBackground
+        style={styles.photo}
+        source={{
+          uri: data.photos[0].url,
+        }}
+      >
+        <View style={styles.container_photo}>
+          <Text style={styles.container_photo_price}>{data.price} €</Text>
+        </View>
+      </ImageBackground>
+      <View style={styles.container_info}>
+        <Profil item={data} />
+
+        <TouchableOpacity
+          onPress={() => {
+            setDescriptionVisible(null);
+          }}
+        >
+          <Text style={styles.description} numberOfLines={descriptionVisible}>
+            {data.description}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container_photo: {
+    height: 40,
+    width: 80,
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  photo: {
+    height: 250,
+    justifyContent: "flex-end",
+    marginBottom: 10,
+  },
+  container_photo_price: {
+    backgroundColor: "black",
+    color: "white",
+    fontWeight: "bold",
+  },
+  container_info: {
+    marginHorizontal: 15,
+  },
+  description: {
+    fontSize: 13,
+  },
+});

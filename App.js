@@ -87,7 +87,7 @@ export default function App() {
                           headerShown: false,
                         }}
                       >
-                        {() => <HomeScreen />}
+                        {(props) => <HomeScreen {...props} />}
                       </Stack.Screen>
 
                       <Stack.Screen
@@ -95,7 +95,7 @@ export default function App() {
                         options={{
                           title: (
                             <Image
-                              style={{ width: 250, height: 50 }}
+                              style={{ width: "100%", height: 10 }}
                               source={require("./assets/logo_airbnb.png")}
                             />
                           ),

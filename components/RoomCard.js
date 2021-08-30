@@ -1,15 +1,8 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import Profil from "../components/Profil";
+
 const RoomCard = ({ item }) => {
   const navigation = useNavigation();
 
@@ -54,36 +47,5 @@ const styles = StyleSheet.create({
   photo: {
     height: 200,
     width: 400,
-  },
-  container_profil: {
-    flexDirection: "row",
-    paddingBottom: 10,
-    marginBottom: 20,
-    borderBottomColor: "lightgrey",
-    borderBottomWidth: 2,
-  },
-  container_title: {
-    width: "80%",
-  },
-
-  title: {
-    fontSize: 18,
-  },
-  photo_profil: {
-    height: 65,
-    width: 65,
-    borderRadius: 50,
-    backgroundColor: "black",
-  },
-  container_rating: {
-    flexDirection: "row",
-  },
-  stars: {
-    flexDirection: "row",
-    marginRight: 10,
-  },
-  reviews: {
-    color: "lightgrey",
-    fontSize: 15,
   },
 });

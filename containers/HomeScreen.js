@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/core";
 import axios from "axios";
 import {
   FlatList,
   SafeAreaView,
-  ScrollView,
-  Text,
   View,
   StyleSheet,
   Image,
@@ -15,7 +12,6 @@ import {
 import RoomCard from "../components/RoomCard";
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
 
