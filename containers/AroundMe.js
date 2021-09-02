@@ -5,44 +5,40 @@ import * as Location from "expo-location";
 
 import axios from "axios";
 
-const AroundMe = () => {
+const AroundMe = ({ navigation }) => {
   const [data, setData] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+
   const [coords, setCoords] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const askPermission = async () => {
       try {
-        const response = await axios.get(
-          `https://express-airbnb-api.herokuapp.com/rooms/around`
-        );
-        setData(response.data);
-        // console.log(response.data);
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          const location = await Location.getCurrentPositionAsync({});
+          console.log("Location =>", location);
+          setCoords({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+          const response = await axios.get(
+            `https://express-airbnb-api.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
+          );
+          setData(response.data);
+          // console.log(response.data);
+          setIsLoading(false);
+        } else {
+          const response = await axios.get(
+            `https://express-airbnb-api.herokuapp.com/rooms/around`
+          );
 
-        setIsLoading(false);
+          setData(response.data);
+          // console.log(response.data);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.log(error.message);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const askPermission = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        let location = await Location.getCurrentPositionAsync({});
-        console.log("Location =>", location);
-        const obj = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
-        setCoords(obj);
-      } else {
-        setError(true);
-
-        setIsLoading(false);
       }
     };
     askPermission();
@@ -50,8 +46,6 @@ const AroundMe = () => {
 
   return isLoading ? (
     <ActivityIndicator />
-  ) : error ? (
-    <Text>Permission denied</Text>
   ) : (
     <View style={styles.container_map}>
       <MapView
@@ -59,10 +53,26 @@ const AroundMe = () => {
         initialRegion={{
           latitude: 48.856614,
           longitude: 2.3522219,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
+          // latitude: coords.latitude
+          // longitude: coords.longitude
+          latitudeDelta: 0.2,
+          longitudeDelta: 0.2,
         }}
-      ></MapView>
+        showsUserLocation
+      >
+        {data.map((room, index) => {
+          return (
+            <MapView.Marker
+              onPress={() => navigation.navigate("Room", { id: room._id })}
+              key={room._id}
+              coordinate={{
+                latitude: room.location[1],
+                longitude: room.location[0],
+              }}
+            />
+          );
+        })}
+      </MapView>
     </View>
   );
 };

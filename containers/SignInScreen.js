@@ -18,6 +18,8 @@ import Logo from "../components/Logo";
 export default function SignInScreen({ setToken }) {
   const [errorMessage, setErrorMessage] = useState("");
   const navigation = useNavigation();
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const handleSubmit = async () => {
     try {
       // vérifier si password === confirmPassword
