@@ -11,45 +11,17 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 import Logo from "../components/Logo";
 
 export default function SignInScreen({ setToken }) {
-  const [errorMessage, setErrorMessage] = useState("");
   const navigation = useNavigation();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const handleSubmit = async () => {
-    try {
-      // vérifier si password === confirmPassword
-      if (password === token) {
-        const response = await axios.post(
-          "https://express-airbnb-api.herokuapp.com/user/log_in",
-          {
-            email,
-            password,
-          }
-        );
-        if (response.data.token) {
-          // si j'ai un token
-          // j'appelle setToken(token)
-          setToken(response.data.token);
-        }
+  const [isLoading, setIsLoading] = useState(false);
 
-        console.log(response.data);
-      } else {
-        // afficher une erreur
-        setErrorMessage("Wrong password/email or both");
-      }
-    } catch (error) {
-      console.log(error.message);
-      console.log(error.response);
-      if (error.response.data.error === "This email have no account.") {
-        setErrorMessage("Account no already create");
-      }
-    }
-  };
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAwareScrollView>
@@ -61,6 +33,7 @@ export default function SignInScreen({ setToken }) {
             style={styles.textInput}
             onChangeText={(text) => setEmail(text)}
             autoCapitalize="none"
+            value={email}
           />
 
           <TextInput
@@ -68,12 +41,36 @@ export default function SignInScreen({ setToken }) {
             placeholder="password"
             style={styles.textInput}
             secureTextEntry
+            value={password}
           />
+          {isLoading === true ? (
+            <ActivityIndicator size="small" color="red" />
+          ) : (
+            <TouchableOpacity
+              style={styles.button_sign}
+              onPress={async () => {
+                setIsLoading(true);
+                try {
+                  const response = await axios.post(
+                    "https://express-airbnb-api.herokuapp.com/user/log_in",
+                    {
+                      email,
+                      password,
+                    }
+                  );
+                  console.log("AXIOS");
 
-          <Text>{errorMessage}</Text>
-          <TouchableOpacity style={styles.button_sign} onPress={handleSubmit}>
-            <Text>Sign In</Text>
-          </TouchableOpacity>
+                  setToken(response.data.token);
+                  setIsLoading(false);
+                } catch (error) {
+                  alert("An error occured");
+                }
+              }}
+            >
+              <Text>Sign In</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity>
             <Text
               onPress={() => {

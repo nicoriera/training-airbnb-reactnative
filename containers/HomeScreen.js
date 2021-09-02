@@ -32,7 +32,7 @@ export default function HomeScreen() {
 
   return isLoading ? (
     <SafeAreaView>
-      <ActivityIndicator size="small" color="#0000ff" />
+      <ActivityIndicator size="small" color="red" />
     </SafeAreaView>
   ) : (
     <SafeAreaView>

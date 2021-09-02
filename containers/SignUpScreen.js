@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  ActivityIndicator,
 } from "react-native";
 
 import Logo from "../components/Logo";
@@ -23,11 +24,13 @@ export default function SignUpScreen({ setToken }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation();
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       // vérifier si password === confirmPassword
       if (password === confirmPassword) {
         const response = await axios.post(
@@ -43,6 +46,7 @@ export default function SignUpScreen({ setToken }) {
           // si j'ai un token
           // j'appelle setToken(token)
           setToken(response.data.token);
+          setIsLoading(false);
         }
 
         console.log(response.data);
@@ -103,9 +107,14 @@ export default function SignUpScreen({ setToken }) {
             secureTextEntry
           />
           <Text>{errorMessage}</Text>
-          <TouchableOpacity style={styles.button_sign} onPress={handleSubmit}>
-            <Text>Sign up</Text>
-          </TouchableOpacity>
+          {isLoading === true ? (
+            <ActivityIndicator />
+          ) : (
+            <TouchableOpacity style={styles.button_sign} onPress={handleSubmit}>
+              <Text>Sign up</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity>
             <Text
               onPress={() => {

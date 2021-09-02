@@ -141,8 +141,18 @@ export default function App() {
                 >
                   {() => (
                     <Stack.Navigator>
-                      <Stack.Screen name="Profile">
-                        {() => <ProfileScreen />}
+                      <Stack.Screen
+                        name="Profile"
+                        options={{
+                          title: (
+                            <Image
+                              style={styles.aribnb_icon}
+                              source={require("./assets/logo_airbnb.png")}
+                            />
+                          ),
+                        }}
+                      >
+                        {(props) => <ProfileScreen {...props} />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
