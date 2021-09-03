@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import axios from "axios";
 import {
   ActivityIndicator,
@@ -18,77 +18,95 @@ import * as ImagePicker from "expo-image-picker";
 
 export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(false);
-  // const [data, setData] = useState("");
+
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [description, setDescription] = useState("");
 
-  const [selectPicture, setSelectPicture] = useState("");
-  const [takenPicture, setTakenPicture] = useState("");
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  // const id = route.params.id;
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `https://express-airbnb-api.herokuapp.com/user/${id}`
-  //       );
-  //       setData(response.data);
-  //       console.log(response.data);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.log(error.message);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [id]);
-  const getPermissionAndGetPicture = async () => {
+  const handleImagePicked = useCallback(async (pickerResult) => {
+    let uploadResponse, uploadResult;
     try {
-      if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status === "granted") {
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-          });
-          console.log(result);
-          if (!result.cancelled) {
-            setSelectPicture(result.uri);
-          }
+      setUploading(true);
+      if (!pickerResult.cancelled) {
+        if (Constants.isDevice) {
+          apiUrl = `https://your-ngrok-subdomain.ngrok.io/upload`;
         } else {
-          alert("Picture not selected");
+          apiUrl = `http://localhost:3000/upload`;
+        }
+        const uri = pickerResult.uri;
+        const uriParts = uri.split(".");
+        const fileType = uriParts[uriParts.length - 1];
+        const formData = new FormData();
+        formData.append("photo", {
+          uri,
+          name: `photo.${fileType}`,
+          type: `image/${fileType}`,
+        });
+        uploadResponse = await axios.put(
+          // Ici, il faut envoyer l'id du user en query
+          // id rentré en dur dans l'exemple, mais doit être dynamique dans votre code
+          "https://express-airbnb-api.herokuapp.com/user/upload_picture",
+          formData,
+          {
+            headers: {
+              Authorization:
+                "Bearer ev5BO5RfKqrCW4mTCt3GNxDo8Zdgt6WG5gSVskqDfyOnPZcnt7AHlc5uvBqAxUfm",
+              Accept: "application/json",
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("log1 ===>", uploadResponse.data.photo[0].url);
+        if (
+          Array.isArray(uploadResponse.data.photo) === true &&
+          uploadResponse.data.photo.length > 0
+        ) {
+          setImage(uploadResponse.data.photo[0].url);
         }
       }
-    } catch (error) {
-      console.log(error.message);
+    } catch (e) {
+      console.log("log2 ===>", { uploadResponse });
+      console.log("log3 ===>", { uploadResult });
+      console.log("log4 ===>", { e });
+      alert("Upload failed, sorry :(");
+    } finally {
+      setUploading(false);
+    }
+  });
+
+  const selectPicture = async () => {
+    const cameraRollPerm =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (cameraRollPerm.status === "granted") {
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      handleImagePicked(pickerResult);
     }
   };
 
-  const getPermissionAndTakePicture = async () => {
-    try {
-      if (Platform.OS !== "web") {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status === "granted") {
-          const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-          });
-          console.log(result);
-          if (!result.cancelled) {
-            setTakenPicture(result.uri);
-          }
-        } else {
-          alert("Picture not taken");
-        }
-      }
-    } catch (error) {
-      console.log(error.message);
+  const takePicture = async () => {
+    const cameraPerm = await ImagePicker.requestCameraPermissionsAsync();
+    const cameraRollPerm =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (
+      cameraPerm.status === "granted" &&
+      cameraRollPerm.status === "granted"
+    ) {
+      const pickerResult = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      handleImagePicked(pickerResult);
     }
   };
 
@@ -104,18 +122,40 @@ export default function ProfileScreen() {
           }}
         >
           <View>
-            <Image
-              source={{ uri: selectPicture }}
-              style={{
-                width: 150,
-                height: 150,
-
-                borderRadius: 75,
-                borderColor: "red",
-                borderWidth: 1,
-                marginRight: 20,
-              }}
-            />
+            {!image ? (
+              <View
+                style={{
+                  width: 150,
+                  height: 150,
+                  borderRadius: 75,
+                  borderColor: "red",
+                  borderWidth: 1,
+                  marginRight: 20,
+                  backgroundColor: "lightgrey",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FontAwesome5 name="user-alt" size={60} color="grey" />
+              </View>
+            ) : (
+              <Image
+                source={{ uri: image }}
+                style={{
+                  width: 150,
+                  height: 150,
+                  borderRadius: 75,
+                  borderColor: "red",
+                  borderWidth: 1,
+                  marginRight: 20,
+                }}
+              />
+            )}
+            {uploading && (
+              <View style={[StyleSheet.absoluteFill, styles.uploading]}>
+                <ActivityIndicator color="red" size="large" />
+              </View>
+            )}
           </View>
 
           <View>
@@ -129,8 +169,7 @@ export default function ProfileScreen() {
               }}
             >
               <FontAwesome5
-                onPress={getPermissionAndGetPicture}
-                style={{ marginTop: 20 }}
+                onPress={selectPicture}
                 name="images"
                 size={24}
                 color="grey"
@@ -144,7 +183,7 @@ export default function ProfileScreen() {
               }}
             >
               <FontAwesome5
-                onPress={getPermissionAndTakePicture}
+                onPress={takePicture}
                 style={{ marginTop: 20 }}
                 name="camera"
                 size={24}
@@ -253,5 +292,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: "80%",
     height: 80,
+  },
+  uploading: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
