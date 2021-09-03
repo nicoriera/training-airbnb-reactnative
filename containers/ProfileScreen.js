@@ -9,15 +9,23 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+// import GetPicture from "../components/GetPicture";
+// import TakePicture from "../components/TakePicture";
 
-export default function ProfileScreen({ route }) {
+export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState("");
+  // const [data, setData] = useState("");
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [description, setDescription] = useState("");
+
+  const [selectPicture, setSelectPicture] = useState("");
+  const [takenPicture, setTakenPicture] = useState("");
+
   // const id = route.params.id;
 
   // useEffect(() => {
@@ -35,6 +43,54 @@ export default function ProfileScreen({ route }) {
   //   };
   //   fetchData();
   // }, [id]);
+  const getPermissionAndGetPicture = async () => {
+    try {
+      if (Platform.OS !== "web") {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status === "granted") {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          });
+          console.log(result);
+          if (!result.cancelled) {
+            setSelectPicture(result.uri);
+          }
+        } else {
+          alert("Picture not selected");
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const getPermissionAndTakePicture = async () => {
+    try {
+      if (Platform.OS !== "web") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status === "granted") {
+          const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          });
+          console.log(result);
+          if (!result.cancelled) {
+            setTakenPicture(result.uri);
+          }
+        } else {
+          alert("Picture not taken");
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <ScrollView style={styles.scrollview}>
@@ -47,25 +103,54 @@ export default function ProfileScreen({ route }) {
             marginTop: 30,
           }}
         >
-          <Image
-            style={{
-              width: 150,
-              height: 150,
-              backgroundColor: "lightgrey",
-              borderRadius: 75,
-              borderColor: "red",
-              borderWidth: 1,
-              marginRight: 20,
-            }}
-          />
           <View>
-            <FontAwesome5 name="images" size={24} color="grey" />
-            <FontAwesome5
-              style={{ marginTop: 20 }}
-              name="camera"
-              size={24}
-              color="grey"
+            <Image
+              source={{ uri: selectPicture }}
+              style={{
+                width: 150,
+                height: 150,
+
+                borderRadius: 75,
+                borderColor: "red",
+                borderWidth: 1,
+                marginRight: 20,
+              }}
             />
+          </View>
+
+          <View>
+            {/* <GetPicture image={image} /> */}
+            {/* <TakePicture image={image} /> */}
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FontAwesome5
+                onPress={getPermissionAndGetPicture}
+                style={{ marginTop: 20 }}
+                name="images"
+                size={24}
+                color="grey"
+              />
+            </View>
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FontAwesome5
+                onPress={getPermissionAndTakePicture}
+                style={{ marginTop: 20 }}
+                name="camera"
+                size={24}
+                color="grey"
+              />
+            </View>
           </View>
         </View>
         <TextInput
