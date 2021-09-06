@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useNavigation } from "@react-navigation/core";
+import { Ionicons } from "@expo/vector-icons";
 
 import {
   Text,
@@ -17,48 +17,49 @@ import {
 
 import Logo from "../components/Logo";
 
-export default function SignUpScreen({ setToken }) {
+export default function SignUpScreen({ setToken, navigation }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [description, setDescription] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isRevealedPassword, setIsRevealedPassword] = useState(true);
+  const [isRevealedConfirmedPassword, setIsRevealedConfirmedPassword] =
+    useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const navigation = useNavigation();
 
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      // vérifier si password === confirmPassword
-      if (password === confirmPassword) {
-        const response = await axios.post(
-          "https://express-airbnb-api.herokuapp.com/user/sign_up",
-          {
-            email,
-            username,
-            description,
-            password,
+      if (email && password && confirmPassword && description) {
+        if (password === confirmPassword) {
+          setErrorMessage("");
+          const response = await axios.post(
+            "https://airbnb-api-nicolas-riera.herokuapp.com/user/sign_up",
+            {
+              email,
+              username,
+              description,
+              password,
+            }
+          );
+          if (response.data.token) {
+            setToken(response.data.token);
+            setIsLoading(false);
           }
-        );
-        if (response.data.token) {
-          // si j'ai un token
-          // j'appelle setToken(token)
-          setToken(response.data.token);
-          setIsLoading(false);
+        } else {
+          setErrorMessage("Passwords must be the same");
         }
-
-        console.log(response.data);
       } else {
-        // afficher une erreur
-        setErrorMessage("Les mots de passe doivent être identiques !");
+        setErrorMessage("All the fields must be filled in");
       }
     } catch (error) {
-      console.log(error.message);
-      console.log(error.response);
-      if (error.response.data.error === "This email already has an account.") {
-        setErrorMessage("Cet email a déjà un compte.");
+      if (error.response.data.message === "The email is already taken") {
+        setErrorMessage("This email already has an account");
+      }
+      if (error.response.data.message === "The username is already taken") {
+        setErrorMessage("This username is already taken");
       }
     }
   };
@@ -87,25 +88,62 @@ export default function SignUpScreen({ setToken }) {
             multiline={true}
             numberOfLines={10}
           />
-          <TextInput
-            onChangeText={(text) => setPassword(text)}
-            placeholder="password"
-            style={styles.textInput}
-            secureTextEntry
-          />
-          <TextInput
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              if (text === password) {
-                setErrorMessage("");
-              } else {
-                setErrorMessage("Les mots de passe doivent être identiques ! ");
-              }
-            }}
-            placeholder="confirm password"
-            style={styles.textInput}
-            secureTextEntry
-          />
+          <View style={styles.view_password}>
+            <TextInput
+              onChangeText={(text) => setPassword(text)}
+              placeholder="password"
+              style={styles.textInput}
+              secureTextEntry={isRevealedPassword}
+              value={password}
+            />
+            {isRevealedPassword ? (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye"
+                size={24}
+                color="black"
+                onPress={() => setIsRevealedPassword(!isRevealedPassword)}
+              />
+            ) : (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye-off"
+                size={24}
+                color="black"
+                onPress={() => setIsRevealedPassword(isRevealedPassword)}
+              />
+            )}
+          </View>
+          <View style={styles.view_password}>
+            <TextInput
+              onChangeText={(text) => setConfirmPassword(text)}
+              placeholder="password"
+              style={styles.textInput}
+              secureTextEntry={isRevealedConfirmedPassword}
+              value={confirmPassword}
+            />
+            {isRevealedConfirmedPassword ? (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye"
+                size={24}
+                color="black"
+                onPress={() =>
+                  setIsRevealedConfirmedPassword(!isRevealedConfirmedPassword)
+                }
+              />
+            ) : (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye-off"
+                size={24}
+                color="black"
+                onPress={() =>
+                  setIsRevealedConfirmedPassword(isRevealedConfirmedPassword)
+                }
+              />
+            )}
+          </View>
           <Text>{errorMessage}</Text>
           {isLoading === true ? (
             <ActivityIndicator />
@@ -134,7 +172,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderBottomColor: "pink",
     borderBottomWidth: 1,
-    width: "80%",
+    width: 300,
     marginBottom: 40,
     paddingBottom: 10,
   },
@@ -167,5 +205,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingVertical: 15,
     marginBottom: 20,
+  },
+  viewPassWord: {
+    position: "relative",
+    width: "80%",
+  },
+  iconEye: {
+    position: "absolute",
+    right: 0,
   },
 });

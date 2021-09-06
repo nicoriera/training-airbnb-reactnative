@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import {
   ActivityIndicator,
@@ -16,26 +16,40 @@ import * as ImagePicker from "expo-image-picker";
 // import GetPicture from "../components/GetPicture";
 // import TakePicture from "../components/TakePicture";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ id, setToken, token }) {
+  const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [description, setDescription] = useState("");
-
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const apiUrl = "https://express-airbnb-api.herokuapp.com";
+
+  const authAxios = axios.create({
+    baseURL: apiUrl,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/user/${id}`);
+        console.log("logdata ===>", response);
+      } catch (error) {
+        console.log(error.response.data.message);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleImagePicked = useCallback(async (pickerResult) => {
     let uploadResponse, uploadResult;
     try {
       setUploading(true);
       if (!pickerResult.cancelled) {
-        if (Constants.isDevice) {
-          apiUrl = `https://your-ngrok-subdomain.ngrok.io/upload`;
-        } else {
-          apiUrl = `http://localhost:3000/upload`;
-        }
         const uri = pickerResult.uri;
         const uriParts = uri.split(".");
         const fileType = uriParts[uriParts.length - 1];
@@ -45,15 +59,14 @@ export default function ProfileScreen() {
           name: `photo.${fileType}`,
           type: `image/${fileType}`,
         });
-        uploadResponse = await axios.put(
+        uploadResponse = await authAxios.put(
           // Ici, il faut envoyer l'id du user en query
           // id rentré en dur dans l'exemple, mais doit être dynamique dans votre code
-          "https://express-airbnb-api.herokuapp.com/user/upload_picture",
+          `${apiUrl}/user/upload_picture/${id}`,
           formData,
           {
             headers: {
-              Authorization:
-                "Bearer ev5BO5RfKqrCW4mTCt3GNxDo8Zdgt6WG5gSVskqDfyOnPZcnt7AHlc5uvBqAxUfm",
+              Authorization: "Bearer" + token,
               Accept: "application/json",
               "Content-Type": "multipart/form-data",
             },
@@ -244,7 +257,10 @@ export default function ProfileScreen() {
         {isLoading === true ? (
           <ActivityIndicator size="small" color="red" />
         ) : (
-          <TouchableOpacity style={styles.button_logout}>
+          <TouchableOpacity
+            onPress={() => setToken(null, null, null)}
+            style={styles.button_logout}
+          >
             <Text>Log Out</Text>
           </TouchableOpacity>
         )}

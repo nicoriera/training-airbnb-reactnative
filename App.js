@@ -19,15 +19,23 @@ const Stack = createStackNavigator();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [userUsername, setUserUsername] = useState(null);
 
   const setToken = async (token) => {
     if (token) {
-      AsyncStorage.setItem("userToken", token);
+      await AsyncStorage.setItem("userToken", token);
+      await AsyncStorage.setItem("userId", id);
+      await AsyncStorage.setItem("userUsername", username);
     } else {
       AsyncStorage.removeItem("userToken");
+      AsyncStorage.removeItem("userId");
+      AsyncStorage.removeItem("userUsername");
     }
 
     setUserToken(token);
+    setUserId(id);
+    setUserUsername(username);
   };
 
   useEffect(() => {
@@ -35,11 +43,13 @@ export default function App() {
     const bootstrapAsync = async () => {
       // We should also handle error for production apps
       const userToken = await AsyncStorage.getItem("userToken");
+      const userId = await AsyncStorage.getItem("userId");
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       setIsLoading(false);
       setUserToken(userToken);
+      setUserId(userId);
     };
 
     bootstrapAsync();
@@ -47,16 +57,16 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {isLoading === true ? (
+      {isLoading === null ? (
         <ActivityIndicator />
       ) : userToken === null ? ( // We haven't finished checking for the token yet
         // No token found, user isn't signed in
         <Stack.Navigator>
           <Stack.Screen name="SignIn" options={{ headerShown: false }}>
-            {() => <SignInScreen setToken={setToken} />}
+            {(props) => <SignInScreen {...props} setToken={setToken} />}
           </Stack.Screen>
           <Stack.Screen name="SignUp" options={{ headerShown: false }}>
-            {() => <SignUpScreen setToken={setToken} />}
+            {(props) => <SignUpScreen {...props} setToken={setToken} />}
           </Stack.Screen>
         </Stack.Navigator>
       ) : (
@@ -87,7 +97,9 @@ export default function App() {
                           headerShown: false,
                         }}
                       >
-                        {(props) => <HomeScreen {...props} />}
+                        {(props) => (
+                          <HomeScreen {...props} username={userUsername} />
+                        )}
                       </Stack.Screen>
 
                       <Stack.Screen
@@ -152,7 +164,14 @@ export default function App() {
                           ),
                         }}
                       >
-                        {(props) => <ProfileScreen {...props} />}
+                        {(props) => (
+                          <ProfileScreen
+                            {...props}
+                            id={userId}
+                            setToken={setToken}
+                            token={userToken}
+                          />
+                        )}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}

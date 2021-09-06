@@ -24,7 +24,7 @@ export default function RoomScreen({ route }) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://express-airbnb-api.herokuapp.com/rooms/${id}`
+          `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/${id}`
         );
         setData(response.data);
         console.log(response.data.location[0]);

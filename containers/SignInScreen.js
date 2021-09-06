@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useNavigation } from "@react-navigation/core";
+
 import {
   ScrollView,
   Text,
@@ -15,12 +15,44 @@ import {
 } from "react-native";
 
 import Logo from "../components/Logo";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function SignInScreen({ setToken }) {
-  const navigation = useNavigation();
+export default function SignInScreen({ setToken, navigation }) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isRevealedPassword, setIsRevealedPassword] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [onSubmission, setOnSubmission] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      if (email && password) {
+        setErrorMessage(""), setOnSubmission(true);
+        const response = await axios.post(
+          "https://airbnb-api-nicolas-riera.herokuapp.com/user/login",
+          {
+            email,
+            password,
+          }
+        );
+        if (response.data.token) {
+          setOnSubmission(false);
+          setToken(
+            response.data.token,
+            response.data._id,
+            response.data.account.username
+          );
+        }
+      } else {
+        setErrorMessage("All the fields must be filled in");
+      }
+    } catch (error) {
+      setOnSubmission(false);
+      if (error.response.data.message === "Unauthorized") {
+        setErrorMessage("Wrong email or password");
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -36,40 +68,43 @@ export default function SignInScreen({ setToken }) {
             value={email}
           />
 
-          <TextInput
-            onChangeText={(text) => setPassword(text)}
-            placeholder="password"
-            style={styles.textInput}
-            secureTextEntry
-            value={password}
-          />
-          {isLoading === true ? (
-            <ActivityIndicator size="small" color="red" />
-          ) : (
-            <TouchableOpacity
-              style={styles.button_sign}
-              onPress={async () => {
-                setIsLoading(true);
-                try {
-                  const response = await axios.post(
-                    "https://express-airbnb-api.herokuapp.com/user/log_in",
-                    {
-                      email,
-                      password,
-                    }
-                  );
-                  console.log("AXIOS");
+          <View style={styles.view_password}>
+            <TextInput
+              onChangeText={(text) => setPassword(text)}
+              placeholder="password"
+              style={styles.textInput}
+              secureTextEntry={isRevealedPassword}
+              value={password}
+            />
+            {isRevealedPassword ? (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye"
+                size={24}
+                color="black"
+                onPress={() => setIsRevealedPassword(!isRevealedPassword)}
+              />
+            ) : (
+              <Ionicons
+                style={styles.iconEye}
+                name="eye-off"
+                size={24}
+                color="black"
+                onPress={() => setIsRevealedPassword(isRevealedPassword)}
+              />
+            )}
+          </View>
 
-                  setToken(response.data.token);
-                  setIsLoading(false);
-                } catch (error) {
-                  alert("An error occured");
-                }
-              }}
-            >
-              <Text>Sign In</Text>
-            </TouchableOpacity>
-          )}
+          <Text>{errorMessage}</Text>
+
+          {onSubmission && <ActivityIndicator size="small" color="red" />}
+          <TouchableOpacity
+            style={styles.button_sign}
+            onPress={handleSubmit}
+            disabled={onSubmission}
+          >
+            <Text>Sign In</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity>
             <Text
@@ -90,7 +125,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderBottomColor: "pink",
     borderBottomWidth: 1,
-    width: "80%",
+    width: 300,
     marginBottom: 40,
     paddingBottom: 10,
   },
@@ -123,5 +158,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingVertical: 15,
     marginBottom: 20,
+  },
+  viewPassWord: {
+    position: "relative",
+    width: "80%",
+  },
+  iconEye: {
+    position: "absolute",
+    right: 0,
   },
 });

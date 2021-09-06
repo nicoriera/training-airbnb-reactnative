@@ -23,14 +23,14 @@ const AroundMe = ({ navigation }) => {
             longitude: location.coords.longitude,
           });
           const response = await axios.get(
-            `https://express-airbnb-api.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
+            `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
           );
           setData(response.data);
           // console.log(response.data);
           setIsLoading(false);
         } else {
           const response = await axios.get(
-            `https://express-airbnb-api.herokuapp.com/rooms/around`
+            `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around`
           );
 
           setData(response.data);
