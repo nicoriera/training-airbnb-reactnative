@@ -29,7 +29,7 @@ export default function SignInScreen({ setToken, navigation }) {
       if (email && password) {
         setErrorMessage(""), setOnSubmission(true);
         const response = await axios.post(
-          "https://airbnb-api-nicolas-riera.herokuapp.com/user/login",
+          "https://airbnb-api-nicolas-riera.herokuapp.com/user/log_in",
           {
             email,
             password,
@@ -39,7 +39,7 @@ export default function SignInScreen({ setToken, navigation }) {
           setOnSubmission(false);
           setToken(
             response.data.token,
-            response.data._id,
+            response.data.id,
             response.data.account.username
           );
         }

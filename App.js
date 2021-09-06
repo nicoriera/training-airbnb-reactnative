@@ -25,12 +25,12 @@ export default function App() {
   const setToken = async (token) => {
     if (token) {
       await AsyncStorage.setItem("userToken", token);
-      await AsyncStorage.setItem("userId", id);
-      await AsyncStorage.setItem("userUsername", username);
+      // await AsyncStorage.setItem("userId", _id);
+      // await AsyncStorage.setItem("userUsername", username);
     } else {
       AsyncStorage.removeItem("userToken");
-      AsyncStorage.removeItem("userId");
-      AsyncStorage.removeItem("userUsername");
+      // AsyncStorage.removeItem("userId");
+      // AsyncStorage.removeItem("userUsername");
     }
 
     setUserToken(token);
@@ -43,13 +43,13 @@ export default function App() {
     const bootstrapAsync = async () => {
       // We should also handle error for production apps
       const userToken = await AsyncStorage.getItem("userToken");
-      const userId = await AsyncStorage.getItem("userId");
+      // const userId = await AsyncStorage.getItem("userId");
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       setIsLoading(false);
       setUserToken(userToken);
-      setUserId(userId);
+      // setUserId(userId);
     };
 
     bootstrapAsync();
