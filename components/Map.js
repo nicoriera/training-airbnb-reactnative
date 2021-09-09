@@ -8,16 +8,16 @@ const Map = ({ data }) => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 48.856614,
-          longitude: 2.3522219,
+          latitude: 41.40938689929355,
+          longitude: 2.1766565421459885,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
       >
         <MapView.Marker
           coordinate={{
-            latitude: data.location[1],
-            longitude: data.location[0],
+            latitude: data.location[0],
+            longitude: data.location[1],
           }}
         ></MapView.Marker>
       </MapView>

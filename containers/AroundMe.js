@@ -63,8 +63,8 @@ const AroundMe = ({ navigation }) => {
               onPress={() => navigation.navigate("Room", { id: room._id })}
               key={room._id}
               coordinate={{
-                latitude: room.location[1],
-                longitude: room.location[0],
+                latitude: room.location[0],
+                longitude: room.location[1],
               }}
             />
           );

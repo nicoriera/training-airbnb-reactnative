@@ -18,7 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 export default function ProfileScreen({ userId, setUser, userToken }) {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [userName, setUserName] = useState("");
+  const [username, setUsername] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState();
   const [imageModified, setImageModified] = useState(false);
@@ -44,11 +44,11 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
             },
           }
         );
-        console.log("Coucou ===>", response.data);
+        // console.log("Coucou ===>", response.data);
         setEmail(response.data.email);
-        setUserName(response.data.account.username);
+        setUsername(response.data.account.username);
         setDescription(response.data.account.description);
-        setImage(response.data.account.photo[0].url);
+        setImage(response.data.account.photo);
       } catch (error) {
         console.log(error.message);
         console.log(error.response);
@@ -86,6 +86,7 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
       if (infoModified) {
         const response = await axios.put(
           `https://airbnb-api-nicolas-riera.herokuapp.com/user/update`,
+          { email, description, username },
           {
             headers: {
               Authorization: `Bearer" ${userToken}`,
@@ -94,7 +95,7 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
             },
           }
         );
-        console.log("Update info ===>", response.data);
+        console.log("Update infos ===>", response.data);
         if (response.status === 200) {
           fetchData();
         }
@@ -233,10 +234,10 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
           placeholder="username"
           style={styles.textInput}
           onChangeText={(text) => {
-            setUserName(text);
+            setUsername(text);
             setInfoModified(true);
           }}
-          value={userName}
+          value={username}
         />
         <TextInput
           style={styles.input_describe}
