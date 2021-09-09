@@ -13,12 +13,12 @@ const RoomCard = ({ item }) => {
     >
       <View>
         <View style={styles.container_photo}>
-          <Image
+          {/* <Image
             style={styles.photo}
-            source={{
-              uri: item.photos[0].url,
-            }}
-          />
+          //   source={{
+          //     uri: item.photos[0].url,
+          //   }}
+          // /> */}
           <Text style={styles.container_photo_price}>{item.price} €</Text>
         </View>
         <Profil item={item} />

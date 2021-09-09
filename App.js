@@ -22,15 +22,15 @@ export default function App() {
   const [userId, setUserId] = useState(null);
   const [userUsername, setUserUsername] = useState(null);
 
-  const setToken = async (token) => {
-    if (token) {
+  const setUser = async (token, id, username) => {
+    if (token && id) {
       await AsyncStorage.setItem("userToken", token);
-      // await AsyncStorage.setItem("userId", _id);
-      // await AsyncStorage.setItem("userUsername", username);
+      await AsyncStorage.setItem("userId", id);
+      await AsyncStorage.setItem("userUsername", username);
     } else {
       AsyncStorage.removeItem("userToken");
-      // AsyncStorage.removeItem("userId");
-      // AsyncStorage.removeItem("userUsername");
+      AsyncStorage.removeItem("userId");
+      AsyncStorage.removeItem("userUsername");
     }
 
     setUserToken(token);
@@ -43,13 +43,13 @@ export default function App() {
     const bootstrapAsync = async () => {
       // We should also handle error for production apps
       const userToken = await AsyncStorage.getItem("userToken");
-      // const userId = await AsyncStorage.getItem("userId");
+      const userId = await AsyncStorage.getItem("userId");
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       setIsLoading(false);
       setUserToken(userToken);
-      // setUserId(userId);
+      setUserId(userId);
     };
 
     bootstrapAsync();
@@ -63,10 +63,10 @@ export default function App() {
         // No token found, user isn't signed in
         <Stack.Navigator>
           <Stack.Screen name="SignIn" options={{ headerShown: false }}>
-            {(props) => <SignInScreen {...props} setToken={setToken} />}
+            {(props) => <SignInScreen {...props} setUser={setUser} />}
           </Stack.Screen>
           <Stack.Screen name="SignUp" options={{ headerShown: false }}>
-            {(props) => <SignUpScreen {...props} setToken={setToken} />}
+            {(props) => <SignUpScreen {...props} setUser={setUser} />}
           </Stack.Screen>
         </Stack.Navigator>
       ) : (
@@ -167,9 +167,9 @@ export default function App() {
                         {(props) => (
                           <ProfileScreen
                             {...props}
-                            id={userId}
-                            setToken={setToken}
-                            token={userToken}
+                            userId={userId}
+                            setUser={setUser}
+                            userToken={userToken}
                           />
                         )}
                       </Stack.Screen>

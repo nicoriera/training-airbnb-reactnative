@@ -17,7 +17,7 @@ import {
 
 import Logo from "../components/Logo";
 
-export default function SignUpScreen({ setToken, navigation }) {
+export default function SignUpScreen({ setUser, navigation }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [description, setDescription] = useState("");
@@ -45,7 +45,11 @@ export default function SignUpScreen({ setToken, navigation }) {
             }
           );
           if (response.data.token) {
-            setToken(response.data.token);
+            setUser(
+              response.data.token,
+              response.data.id,
+              response.data.account.username
+            );
             setIsLoading(false);
           }
         } else {

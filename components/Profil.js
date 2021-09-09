@@ -26,12 +26,12 @@ const Profil = ({ item }) => {
         </View>
       </View>
       <View style={styles.container_photo_profil}>
-        <Image
+        {/* <Image
           style={styles.photo_profil}
           source={{
             uri: item.user.account.photo.url,
           }}
-        />
+        /> */}
       </View>
     </View>
   );

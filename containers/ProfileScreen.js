@@ -9,48 +9,59 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 // import GetPicture from "../components/GetPicture";
 // import TakePicture from "../components/TakePicture";
 
-export default function ProfileScreen({ id, setToken, token }) {
-  const [data, setData] = useState({});
+export default function ProfileScreen({ userId, setUser, userToken }) {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const apiUrl = "https://express-airbnb-api.herokuapp.com";
+  const [image, setImage] = useState();
+  const [imageModified, setImageModified] = useState(false);
+  const [infoModified, setInfoModified] = useState(false);
+
+  const apiUrl = "https://airbnb-api-nicolas-riera.herokuapp.com";
 
   const authAxios = axios.create({
     baseURL: apiUrl,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${userToken}`,
     },
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/user/${id}`);
-        console.log("logdata ===>", response);
+        const response = await axios.get(
+          `https://airbnb-api-nicolas-riera.herokuapp.com/users/${userId}`,
+          {
+            headers: {
+              authorization: `Bearer" ${userToken}`,
+            },
+          }
+        );
+        console.log("Coucou ===>", response.data);
+        setEmail(response.data.email);
+        setUserName(response.data.account.username);
+        setDescription(response.data.account.description);
+        setImage(response.data.account.photo[0].url);
       } catch (error) {
-        console.log(error.response.data.message);
+        console.log(error.message);
+        console.log(error.response);
       }
     };
     fetchData();
   }, []);
 
-  const handleImagePicked = useCallback(async (pickerResult) => {
-    let uploadResponse, uploadResult;
+  const handleUpdate = async () => {
     try {
-      setUploading(true);
-      if (!pickerResult.cancelled) {
-        const uri = pickerResult.uri;
+      setIsLoading(true);
+      if (imageModified) {
+        const uri = image;
         const uriParts = uri.split(".");
         const fileType = uriParts[uriParts.length - 1];
         const formData = new FormData();
@@ -59,67 +70,74 @@ export default function ProfileScreen({ id, setToken, token }) {
           name: `photo.${fileType}`,
           type: `image/${fileType}`,
         });
-        uploadResponse = await authAxios.put(
-          // Ici, il faut envoyer l'id du user en query
-          // id rentré en dur dans l'exemple, mais doit être dynamique dans votre code
-          `${apiUrl}/user/upload_picture/${id}`,
+        const response = await axios.put(
+          `https://airbnb-api-nicolas-riera.herokuapp.com/user/upload_picture/${userId}`,
           formData,
           {
             headers: {
-              Authorization: "Bearer" + token,
+              Authorization: `Bearer" ${userToken}`,
               Accept: "application/json",
               "Content-Type": "multipart/form-data",
             },
           }
         );
-        console.log("log1 ===>", uploadResponse.data.photo[0].url);
-        if (
-          Array.isArray(uploadResponse.data.photo) === true &&
-          uploadResponse.data.photo.length > 0
-        ) {
-          setImage(uploadResponse.data.photo[0].url);
+        console.log("Upload image ===>", response.data);
+      }
+      if (infoModified) {
+        const response = await axios.put(
+          `https://airbnb-api-nicolas-riera.herokuapp.com/user/update`,
+          {
+            headers: {
+              Authorization: `Bearer" ${userToken}`,
+              Accept: "application/json",
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("Update info ===>", response.data);
+        if (response.status === 200) {
+          fetchData();
         }
       }
-    } catch (e) {
-      console.log("log2 ===>", { uploadResponse });
-      console.log("log3 ===>", { uploadResult });
-      console.log("log4 ===>", { e });
-      alert("Upload failed, sorry :(");
-    } finally {
-      setUploading(false);
-    }
-  });
-
-  const selectPicture = async () => {
-    const cameraRollPerm =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (cameraRollPerm.status === "granted") {
-      const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-      handleImagePicked(pickerResult);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.message);
+      console.log(error.response.data);
     }
   };
 
-  const takePicture = async () => {
-    const cameraPerm = await ImagePicker.requestCameraPermissionsAsync();
-    const cameraRollPerm =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (
-      cameraPerm.status === "granted" &&
-      cameraRollPerm.status === "granted"
-    ) {
-      const pickerResult = await ImagePicker.launchCameraAsync({
+  const handelePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status === "granted") {
+      const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-      handleImagePicked(pickerResult);
+      if (!result.cancelled) {
+        setImage(result.uri);
+        setImageModified(true);
+      } else {
+        alert("No selected image!");
+      }
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status === "granted") {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        setImage(result.uri);
+        setImageModified(true);
+      }
     }
   };
 
@@ -154,6 +172,7 @@ export default function ProfileScreen({ id, setToken, token }) {
             ) : (
               <Image
                 source={{ uri: image }}
+                resizeMode="contain"
                 style={{
                   width: 150,
                   height: 150,
@@ -163,11 +182,6 @@ export default function ProfileScreen({ id, setToken, token }) {
                   marginRight: 20,
                 }}
               />
-            )}
-            {uploading && (
-              <View style={[StyleSheet.absoluteFill, styles.uploading]}>
-                <ActivityIndicator color="red" size="large" />
-              </View>
             )}
           </View>
 
@@ -182,7 +196,7 @@ export default function ProfileScreen({ id, setToken, token }) {
               }}
             >
               <FontAwesome5
-                onPress={selectPicture}
+                onPress={handelePickImage}
                 name="images"
                 size={24}
                 color="grey"
@@ -196,7 +210,7 @@ export default function ProfileScreen({ id, setToken, token }) {
               }}
             >
               <FontAwesome5
-                onPress={takePicture}
+                onPress={handleTakePhoto}
                 style={{ marginTop: 20 }}
                 name="camera"
                 size={24}
@@ -208,48 +222,36 @@ export default function ProfileScreen({ id, setToken, token }) {
         <TextInput
           placeholder="email"
           style={styles.textInput}
-          onChangeText={(text) => setEmail(text)}
+          onChangeText={(text) => {
+            setEmail(text);
+            setInfoModified(true);
+          }}
           autoCapitalize="none"
           value={email}
         />
         <TextInput
           placeholder="username"
           style={styles.textInput}
-          onChangeText={(text) => setUserName(text)}
+          onChangeText={(text) => {
+            setUserName(text);
+            setInfoModified(true);
+          }}
           value={userName}
         />
         <TextInput
           style={styles.input_describe}
-          onChangeText={(text) => setDescription(text)}
+          onChangeText={(text) => {
+            setDescription(text);
+            setInfoModified(true);
+          }}
           placeholder="Describe yourself"
           multiline={true}
-          numberOfLines={10}
+          value={description}
         />
         {isLoading === true ? (
           <ActivityIndicator size="small" color="red" />
         ) : (
-          <TouchableOpacity
-            style={styles.button_sign}
-            onPress={async () => {
-              setIsLoading(true);
-              try {
-                const response = await axios.put(
-                  "https://express-airbnb-api.herokuapp.com/user/update",
-                  {
-                    email,
-                    description,
-                    username,
-                  }
-                );
-                console.log("AXIOS");
-
-                setData(response.data);
-                setIsLoading(false);
-              } catch (error) {
-                alert("An error occured");
-              }
-            }}
-          >
+          <TouchableOpacity style={styles.button_sign} onPress={handleUpdate}>
             <Text>Update</Text>
           </TouchableOpacity>
         )}
@@ -258,7 +260,7 @@ export default function ProfileScreen({ id, setToken, token }) {
           <ActivityIndicator size="small" color="red" />
         ) : (
           <TouchableOpacity
-            onPress={() => setToken(null, null, null)}
+            onPress={() => setUser(null, null, null)}
             style={styles.button_logout}
           >
             <Text>Log Out</Text>

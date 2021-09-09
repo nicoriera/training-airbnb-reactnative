@@ -9,7 +9,6 @@ import {
   View,
   StyleSheet,
   SafeAreaView,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
@@ -17,39 +16,39 @@ import {
 import Logo from "../components/Logo";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function SignInScreen({ setToken, navigation }) {
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
+// azerty
+// riera@gmail.com
+
+export default function SignInScreen({ setUser, navigation }) {
+  const [password, setPassword] = useState("azerty");
+  const [email, setEmail] = useState("riera@gmail.com");
   const [isRevealedPassword, setIsRevealedPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [onSubmission, setOnSubmission] = useState(false);
 
   const handleSubmit = async () => {
     try {
-      if (email && password) {
-        setErrorMessage(""), setOnSubmission(true);
-        const response = await axios.post(
-          "https://airbnb-api-nicolas-riera.herokuapp.com/user/log_in",
-          {
-            email,
-            password,
-          }
-        );
-        if (response.data.token) {
-          setOnSubmission(false);
-          setToken(
-            response.data.token,
-            response.data.id,
-            response.data.account.username
-          );
+      // vérifier si password === confirmPassword
+      setOnSubmission(true);
+      const response = await axios.post(
+        "https://airbnb-api-nicolas-riera.herokuapp.com/user/log_in",
+        {
+          email,
+          password,
         }
-      } else {
-        setErrorMessage("All the fields must be filled in");
+      );
+      console.log("Hola ===>", response.data._id);
+      if (response.data.token) {
+        // si j'ai un token
+        // j'appelle setUser(token, id)
+        setUser(response.data.token, response.data._id);
+        setOnSubmission(false);
       }
     } catch (error) {
-      setOnSubmission(false);
-      if (error.response.data.message === "Unauthorized") {
-        setErrorMessage("Wrong email or password");
+      console.log(error.message);
+      console.log(error.response.data);
+      if (error.response.data.error === "This email already has an account.") {
+        setErrorMessage("Cet email a déjà un compte.");
       }
     }
   };

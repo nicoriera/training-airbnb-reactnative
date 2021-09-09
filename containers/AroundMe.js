@@ -26,7 +26,7 @@ const AroundMe = ({ navigation }) => {
             `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
           );
           setData(response.data);
-          // console.log(response.data);
+
           setIsLoading(false);
         } else {
           const response = await axios.get(
@@ -34,7 +34,6 @@ const AroundMe = ({ navigation }) => {
           );
 
           setData(response.data);
-          // console.log(response.data);
           setIsLoading(false);
         }
       } catch (error) {
@@ -51,10 +50,8 @@ const AroundMe = ({ navigation }) => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 48.856614,
-          longitude: 2.3522219,
-          // latitude: coords.latitude
-          // longitude: coords.longitude
+          latitude: coords.latitude,
+          longitude: coords.longitude,
           latitudeDelta: 0.2,
           longitudeDelta: 0.2,
         }}
