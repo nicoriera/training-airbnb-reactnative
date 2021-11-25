@@ -31,39 +31,33 @@ export default function SignUpScreen({ setUser, navigation }) {
 
   const handleSubmit = async () => {
     try {
-      setIsLoading(true);
-      if (email && password && confirmPassword && description) {
-        if (password === confirmPassword) {
-          setErrorMessage("");
-          const response = await axios.post(
-            "https://airbnb-api-nicolas-riera.herokuapp.com/user/sign_up",
-            {
-              email,
-              username,
-              description,
-              password,
-            }
-          );
-          if (response.data.token) {
-            setUser(
-              response.data.token,
-              response.data.id,
-              response.data.account.username
-            );
-            setIsLoading(false);
+      // vérifier si password === confirmPassword
+      if (password === confirmPassword) {
+        const response = await axios.post(
+          "https://airbnb-api-nicolas-riera.herokuapp.com/user/sign_up",
+          {
+            email,
+            username,
+            description,
+            password,
           }
-        } else {
-          setErrorMessage("Passwords must be the same");
+        );
+        if (response.data.token) {
+          // si j'ai un token
+          // j'appelle setUser(token)
+          setUser(response.data.token, response.data.id);
         }
+
+        console.log(response.data);
       } else {
-        setErrorMessage("All the fields must be filled in");
+        // afficher une erreur
+        setErrorMessage("Les mots de passe doivent être identiques !");
       }
     } catch (error) {
-      if (error.response.data.message === "The email is already taken") {
-        setErrorMessage("This email already has an account");
-      }
-      if (error.response.data.message === "The username is already taken") {
-        setErrorMessage("This username is already taken");
+      console.log(error.message);
+      console.log(error.response);
+      if (error.response.data.error === "This email already has an account.") {
+        setErrorMessage("Cet email a déjà un compte.");
       }
     }
   };

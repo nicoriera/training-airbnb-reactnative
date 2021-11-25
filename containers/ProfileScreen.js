@@ -20,82 +20,65 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState();
-  const [imageModified, setImageModified] = useState(false);
+  const [picture, setPicture] = useState("");
+  const [pictureModified, setPictureModified] = useState(false);
   const [infoModified, setInfoModified] = useState(false);
 
-  const apiUrl = "https://airbnb-api-nicolas-riera.herokuapp.com";
 
-  const authAxios = axios.create({
-    baseURL: apiUrl,
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-    },
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `https://airbnb-api-nicolas-riera.herokuapp.com/users/${userId}`,
-          {
-            headers: {
-              authorization: `Bearer" ${userToken}`,
-            },
-          }
-        );
-        // console.log("Coucou ===>", response.data);
-        setEmail(response.data.email);
-        setUsername(response.data.account.username);
-        setDescription(response.data.account.description);
-        setImage(response.data.account.photo);
-      } catch (error) {
-        console.log(error.message);
-        console.log(error.response);
-      }
-    };
+useEffect(() => {
     fetchData();
   }, []);
+
+
+ const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `https://airbnb-api-nicolas-riera.herokuapp.com/users/${userId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      // console.log("Coucou ===> ", response.data);
+      setEmail(response.data.email);
+      setUsername(response.data.username);
+      setDescription(response.data.description);
+      setPicture(response.data.photo[0].url);
+    } catch (error) {
+      console.log(error.message);
+      console.log(error.response.data);
+    }
+  };
 
   const handleUpdate = async () => {
     try {
       setIsLoading(true);
-      if (imageModified) {
-        const uri = image;
-        const uriParts = uri.split(".");
-        const fileType = uriParts[uriParts.length - 1];
+      if (pictureModified) {
+        // Est-ce que j'ai modifié l'avatar ?
         const formData = new FormData();
+        const uriParts = picture.split(".");
+        const fileType = uriParts[uriParts.length - 1];
         formData.append("photo", {
-          uri,
-          name: `photo.${fileType}`,
+          uri: picture,
+          name: "userPicture",
           type: `image/${fileType}`,
         });
         const response = await axios.put(
           `https://airbnb-api-nicolas-riera.herokuapp.com/user/upload_picture/${userId}`,
           formData,
-          {
-            headers: {
-              Authorization: `Bearer" ${userToken}`,
-              Accept: "application/json",
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          { headers: { authorization: `Bearer ${userToken}` } }
         );
-        console.log("Upload image ===>", response.data);
+        console.log("Upload picture ===> ", response.data);
       }
       if (infoModified) {
+        // Est-ce que j'ai modifié les informations du profil ?
         const response = await axios.put(
           `https://airbnb-api-nicolas-riera.herokuapp.com/user/update`,
           { email, description, username },
-          {
-            headers: {
-              Authorization: `Bearer" ${userToken}`,
-              Accept: "application/json",
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          { headers: { authorization: `Bearer ${userToken}` } }
         );
-        console.log("Update infos ===>", response.data);
+        console.log("Update infos ==> ", response.data);
         if (response.status === 200) {
           fetchData();
         }
@@ -107,37 +90,29 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
     }
   };
 
-  const handelePickImage = async () => {
+  const handlePickImage = async () => {
+    // Demander l'autorisation d'accès à la gallerie
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status === "granted") {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+      // Si c'est ok => récupérer une image
+      const result = await ImagePicker.launchImageLibraryAsync();
+      console.log(result);
       if (!result.cancelled) {
-        setImage(result.uri);
-        setImageModified(true);
+        setPicture(result.uri);
+        setPictureModified(true);
       } else {
         alert("No selected image!");
       }
     }
   };
-
   const handleTakePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
     if (status === "granted") {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+      const result = await ImagePicker.launchCameraAsync();
+      console.log(result);
       if (!result.cancelled) {
-        setImage(result.uri);
-        setImageModified(true);
+        setPicture(result.uri);
+        setPictureModified(true);
       }
     }
   };
@@ -154,7 +129,7 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
           }}
         >
           <View>
-            {!image ? (
+            {!picture ? (
               <View
                 style={{
                   width: 150,
@@ -172,8 +147,7 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
               </View>
             ) : (
               <Image
-                source={{ uri: image }}
-                resizeMode="contain"
+                source={{ uri: picture }}
                 style={{
                   width: 150,
                   height: 150,
@@ -197,7 +171,7 @@ export default function ProfileScreen({ userId, setUser, userToken }) {
               }}
             >
               <FontAwesome5
-                onPress={handelePickImage}
+                onPress={handlePickImage}
                 name="images"
                 size={24}
                 color="grey"

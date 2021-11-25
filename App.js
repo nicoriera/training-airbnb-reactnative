@@ -20,22 +20,20 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [userUsername, setUserUsername] = useState(null);
+  
 
   const setUser = async (token, id, username) => {
     if (token && id) {
       await AsyncStorage.setItem("userToken", token);
       await AsyncStorage.setItem("userId", id);
-      await AsyncStorage.setItem("userUsername", username);
     } else {
       AsyncStorage.removeItem("userToken");
       AsyncStorage.removeItem("userId");
-      AsyncStorage.removeItem("userUsername");
     }
 
     setUserToken(token);
     setUserId(id);
-    setUserUsername(username);
+  
   };
 
   useEffect(() => {
@@ -98,7 +96,7 @@ export default function App() {
                         }}
                       >
                         {(props) => (
-                          <HomeScreen {...props} username={userUsername} />
+                          <HomeScreen {...props} />
                         )}
                       </Stack.Screen>
 

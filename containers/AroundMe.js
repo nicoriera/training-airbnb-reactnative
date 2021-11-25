@@ -14,14 +14,18 @@ const AroundMe = ({ navigation }) => {
   useEffect(() => {
     const askPermission = async () => {
       try {
+        // Request permission to access GPS coordinates
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === "granted") {
-          const location = await Location.getCurrentPositionAsync({});
+          // If authorized access
+          // Retrieve GPS data (store this data in a state)
+          const location = await Location.getCurrentPositionAsync({accuracy: 6,});
           console.log("Location =>", location);
           setCoords({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           });
+          // Request to retrieve ads
           const response = await axios.get(
             `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
           );
@@ -29,6 +33,9 @@ const AroundMe = ({ navigation }) => {
 
           setIsLoading(false);
         } else {
+          // Otherwise
+          // Query to get all ads
+          // Request to retrieve ads
           const response = await axios.get(
             `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around`
           );
@@ -50,8 +57,8 @@ const AroundMe = ({ navigation }) => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: coords.latitude,
-          longitude: coords.longitude,
+          latitude: coords.latitude || 48.856614,
+        longitude: coords.longitude || 2.3522219,
           latitudeDelta: 0.2,
           longitudeDelta: 0.2,
         }}
