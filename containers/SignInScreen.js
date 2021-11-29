@@ -27,9 +27,10 @@ export default function SignInScreen({ setUser, navigation }) {
   const [onSubmission, setOnSubmission] = useState(false);
 
   const handleSubmit = async () => {
+    setOnSubmission(true);
     try {
       // vérifier si password === confirmPassword
-      setOnSubmission(true);
+      
       const response = await axios.post(
         "https://airbnb-api-nicolas-riera.herokuapp.com/user/log_in",
         {
@@ -42,8 +43,9 @@ export default function SignInScreen({ setUser, navigation }) {
         // si j'ai un token
         // j'appelle setUser(token, id)
         setUser(response.data.token, response.data._id);
-        setOnSubmission(false);
+        
       }
+      setOnSubmission(false);
     } catch (error) {
       console.log(error.message);
       console.log(error.response.data);
@@ -66,6 +68,8 @@ export default function SignInScreen({ setUser, navigation }) {
             autoCapitalize="none"
             value={email}
           />
+
+          <Text>{errorMessage}</Text>
 
           <View style={styles.view_password}>
             <TextInput
@@ -96,14 +100,20 @@ export default function SignInScreen({ setUser, navigation }) {
 
           <Text>{errorMessage}</Text>
 
-          {onSubmission && <ActivityIndicator size="small" color="red" />}
-          <TouchableOpacity
+          
+          <View>
+          {
+onSubmission === true ? <ActivityIndicator style={styles.activity} size="small" color="red" /> : 
+<TouchableOpacity
             style={styles.button_sign}
             onPress={handleSubmit}
             disabled={onSubmission}
           >
             <Text>Sign In</Text>
           </TouchableOpacity>
+          }
+          
+          </View>
 
           <TouchableOpacity>
             <Text
@@ -166,4 +176,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
   },
+  activity: {
+    margin: 10,
+  }
 });

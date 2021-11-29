@@ -33,14 +33,14 @@ useEffect(() => {
  const fetchData = async () => {
     try {
       const response = await axios.get(
-        `https://airbnb-api-nicolas-riera.herokuapp.com/users/${userId}`,
+        `https://express-airbnb-api.herokuapp.com/user/${userId}`,
         {
           headers: {
             authorization: `Bearer ${userToken}`,
           },
         }
       );
-      // console.log("Coucou ===> ", response.data);
+      console.log("Coucou ===> ", response.data);
       setEmail(response.data.email);
       setUsername(response.data.username);
       setDescription(response.data.description);
@@ -65,7 +65,7 @@ useEffect(() => {
           type: `image/${fileType}`,
         });
         const response = await axios.put(
-          `https://airbnb-api-nicolas-riera.herokuapp.com/user/upload_picture/${userId}`,
+          `https://airbnb-api-nicolas-riera.herokuapp.com/user/upload_picture`,
           formData,
           { headers: { authorization: `Bearer ${userToken}` } }
         );
@@ -224,23 +224,21 @@ useEffect(() => {
           value={description}
         />
         {isLoading === true ? (
-          <ActivityIndicator size="small" color="red" />
+          <ActivityIndicator style={styles.activity} size="small" color="red"/>
         ) : (
           <TouchableOpacity style={styles.button_sign} onPress={handleUpdate}>
             <Text>Update</Text>
           </TouchableOpacity>
         )}
 
-        {isLoading === true ? (
-          <ActivityIndicator size="small" color="red" />
-        ) : (
+       
           <TouchableOpacity
             onPress={() => setUser(null, null, null)}
             style={styles.button_logout}
           >
             <Text>Log Out</Text>
           </TouchableOpacity>
-        )}
+       
       </View>
     </ScrollView>
   );
@@ -290,4 +288,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  activity: {
+    margin: 10,
+  }
 });

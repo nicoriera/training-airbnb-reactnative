@@ -27,7 +27,7 @@ const AroundMe = ({ navigation }) => {
           });
           // Request to retrieve ads
           const response = await axios.get(
-            `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
+            `https://express-airbnb-api.herokuapp.com/rooms/around?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`
           );
           setData(response.data);
 
@@ -37,7 +37,7 @@ const AroundMe = ({ navigation }) => {
           // Query to get all ads
           // Request to retrieve ads
           const response = await axios.get(
-            `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/around`
+            `https://express-airbnb-api.herokuapp.com/rooms/around`
           );
 
           setData(response.data);
@@ -51,7 +51,7 @@ const AroundMe = ({ navigation }) => {
   }, []);
 
   return isLoading ? (
-    <ActivityIndicator />
+    <ActivityIndicator style={styles.activity} size="large" color="red"/>
   ) : (
     <View style={styles.container_map}>
       <MapView
@@ -91,4 +91,13 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  activity: {
+      position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });

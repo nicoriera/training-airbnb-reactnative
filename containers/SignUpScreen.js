@@ -144,7 +144,7 @@ export default function SignUpScreen({ setUser, navigation }) {
           </View>
           <Text>{errorMessage}</Text>
           {isLoading === true ? (
-            <ActivityIndicator />
+            <ActivityIndicator style={styles.activity} size="small" color="red" />
           ) : (
             <TouchableOpacity style={styles.button_sign} onPress={handleSubmit}>
               <Text>Sign up</Text>
@@ -212,4 +212,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
   },
+   activity: {
+    margin: 10,
+  }
 });

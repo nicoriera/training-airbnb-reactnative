@@ -25,11 +25,9 @@ export default function RoomScreen({ route }) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://airbnb-api-nicolas-riera.herokuapp.com/rooms/${id}`
+          `https://express-airbnb-api.herokuapp.com/rooms/${id}`
         );
         setData(response.data);
-        console.log(response.data.location[0]);
-
         setIsLoading(false);
       } catch (error) {
         console.log(error.message);
@@ -38,15 +36,15 @@ export default function RoomScreen({ route }) {
     fetchData();
   }, [id]);
   return isLoading ? (
-    <ActivityIndicator />
+    <ActivityIndicator style={styles.activity} size="large" color="red"/>
   ) : (
     <ScrollView>
       <View>
         <ImageBackground
           style={styles.photo}
-          // source={{
-          //   uri: data.photos[0].url,
-          // }}
+          source={{
+            uri: data.photos[0].url,
+          }}
         >
           <View style={styles.container_photo}>
             <Text style={styles.container_photo_price}>{data.price} €</Text>
@@ -96,4 +94,13 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 13,
   },
+  activity: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
